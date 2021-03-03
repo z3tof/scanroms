@@ -17,15 +17,17 @@ nbromerr = 0
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d','--dir',help='repertoire a scanner')
+parser.add_argument('-v',"--verbose",help="liste les erreurs",action="store_true")
 parser.add_argument('file',help='fichier dat')
 
 args=parser.parse_args()
 
 datfile = args.file
 dir = args.dir
+verbose=args.verbose
 
 print("scanroms v%s" % (v))
-print("-------------")
+print("-------------------")
 
 print("Lecture fichier dat...")
 
@@ -37,8 +39,6 @@ header = doc.getElementsByTagName("header")[0]
 datname = header.getElementsByTagName("name")[0].firstChild.data
 datdesc = header.getElementsByTagName("description")[0].firstChild.data
 datver = header.getElementsByTagName("version")[0].firstChild.data
-
-
 
 games = doc.getElementsByTagName("game")
 for game in games:
@@ -98,11 +98,12 @@ for game in games:
                            d[romname] = ["",0]
                            err = err + 1
 
-              if err > 0:
+              if (err > 0) and verbose :
                    print("Erreur : %s" % (name))
                    nbromerr = nbromerr + 1
-#        else :
-#              print("%s nexiste pas" % (name))
+        else :
+              if verbose :
+                   print("Le fichier %s.zip nexiste pas" % (name))
 
 
 print("-------------------")
