@@ -1,0 +1,127 @@
+#!/usr/bin/python
+
+import zipfile
+import os.path
+import argparse
+
+from pathlib import Path
+from xml.dom import minidom
+
+v = "0.1"
+
+nbroms = 0 
+nbclones = 0
+nbbios = 0
+nbtrouves = 0
+nbromerr = 0
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-d','--dir',help='repertoire a scanner')
+parser.add_argument('file',help='fichier dat')
+
+args=parser.parse_args()
+
+datfile = args.file
+dir = args.dir
+
+print("scanroms v%s" % (v))
+print("-------------")
+
+print("Lecture fichier dat...")
+
+doc = minidom.parse(datfile)
+
+print("Analyse des roms...")
+
+header = doc.getElementsByTagName("header")[0]
+datname = header.getElementsByTagName("name")[0].firstChild.data
+datdesc = header.getElementsByTagName("description")[0].firstChild.data
+datver = header.getElementsByTagName("version")[0].firstChild.data
+
+
+
+games = doc.getElementsByTagName("game")
+for game in games:
+        nbroms = nbroms + 1
+        name = game.getAttribute("name")
+        romeof = game.getAttribute("romof")
+        cloneof = game.getAttribute("cloneof")
+        isbios = game.getAttribute("isbios")
+
+        if cloneof != "":
+              nbclones = nbclones + 1
+
+        if isbios == "yes":
+              nbbios = nbbios + 1
+
+        description = game.getElementsByTagName("description")[0].firstChild.data
+        year = game.getElementsByTagName("year")[0].firstChild.data
+        manufacturer = game.getElementsByTagName("manufacturer")[0].firstChild.data
+
+        driver = game.getElementsByTagName("driver")
+        if len(driver) > 0 :
+             status = game.getElementsByTagName("driver")[0].getAttribute("status")
+        else :
+             status = ""
+
+        romfile = os.path.join(dir,name + ".zip")
+
+
+        if os.path.isfile(romfile) :
+
+              nbtrouves = nbtrouves + 1
+              zfiles = zipfile.ZipFile(romfile).infolist()
+
+              d = {}
+              for zfile in zfiles :
+                  crc32 = "%08x" % (zfile.CRC & 0xFFFFFFFF)  
+                  d[zfile.filename] = [crc32,zfile.file_size]
+ 
+              roms = game.getElementsByTagName("rom")
+
+              err = 0
+
+              for rom in roms :
+                   romname = rom.getAttribute("name")
+                   romsize = rom.getAttribute("size")
+                   romcrc = rom.getAttribute("crc")
+                   rommerge = rom.getAttribute("merge")
+                   romstatus = rom.getAttribute("status")
+
+                   if romstatus != "nodump" :
+                      if rommerge == "":   
+                        if romname in d:
+                           if romcrc != d[romname][0]:
+                                d[romname][0] = ""
+                                err = err + 1
+                        else:
+                           d[romname] = ["",0]
+                           err = err + 1
+
+              if err > 0:
+                   print("Erreur : %s" % (name))
+                   nbromerr = nbromerr + 1
+#        else :
+#              print("%s nexiste pas" % (name))
+
+
+print("-------------------")
+print("Fichier     : %s" % (datfile))
+print("Nom         : %s" % (datname))
+print("Description : %s" % (datdesc))
+print("Version     : %s" % (datver))
+print("%s roms (%s non clones - %s clones - %s bios)" % (nbroms, nbroms-nbclones-nbbios, nbclones , nbbios))
+
+print("-------------------")
+print("Repertoire scanné : %s" % (dir))
+print("Roms scannées : %s" % (nbtrouves))
+print("Roms non trouvées : %s" % (nbroms - nbtrouves))
+print("Roms en erreur : %s" % (nbromerr))
+
+
+
+                        
+
+
+
+
