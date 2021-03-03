@@ -16,9 +16,9 @@ nbtrouves = 0
 nbromerr = 0
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-d','--dir',help='repertoire a scanner')
-parser.add_argument('-v',"--verbose",help="liste les erreurs",action="store_true")
-parser.add_argument('file',help='fichier dat')
+parser.add_argument("-d","--dir",help="repertoire a scanner")
+parser.add_argument("-v","--verbose",help="liste les erreurs",action="store_true")
+parser.add_argument("file",help="fichier dat")
 
 args=parser.parse_args()
 
