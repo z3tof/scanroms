@@ -66,7 +66,6 @@ for game in games:
 
         romfile = os.path.join(dir,name + ".zip")
 
-
         if os.path.isfile(romfile) :
 
               nbtrouves = nbtrouves + 1
@@ -103,7 +102,7 @@ for game in games:
                    nbromerr = nbromerr + 1
         else :
               if verbose :
-                   print("Le fichier %s.zip nexiste pas" % (name))
+                   print("Le fichier %s.zip n'existe pas" % (name))
 
 
 print("-------------------")
@@ -118,11 +117,4 @@ print("Repertoire scanné : %s" % (dir))
 print("Roms scannées : %s" % (nbtrouves))
 print("Roms non trouvées : %s" % (nbroms - nbtrouves))
 print("Roms en erreur : %s" % (nbromerr))
-
-
-
-                        
-
-
-
 
